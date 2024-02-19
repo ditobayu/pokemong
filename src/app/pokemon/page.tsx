@@ -11,121 +11,97 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import Image from "next/image";
+  PokemonDetail,
+  PokemonDetailSkeleton,
+} from "@/components/ui/pokemonDetail";
+import { Skeleton } from "@/components/ui/skeleton";
+import usePokemonStore from "@/store";
 import React, { useEffect, useState } from "react";
 
-interface Data {
-  count: number;
-  next: string;
-  previous: string;
-  results: Array<{ name: string; url: string }>;
-}
-
-interface PokemonDetail {
-  abilities: Array<{ ability: { name: string; url: string } }>;
-  base_experience: number;
-  cries: { latest: string; legacy: string };
-  forms: Array<{ name: string; url: string }>;
-  game_indices: Array<{
-    game_index: number;
-    version: { name: string; url: string };
-  }>;
-  height: number;
-  held_items: Array<{ item: { name: string; url: string } }>;
-  id: number;
-  is_default: boolean;
-  location_area_encounters: string;
-  moves: Array<{ move: { name: string; url: string } }>;
-  name: string;
-  order: number;
-  species: { name: string; url: string };
-  sprites: {
-    back_default: string;
-    back_female: string;
-    back_shiny: string;
-    back_shiny_female: string;
-    front_default: string;
-    front_female: string;
-    front_shiny: string;
-    front_shiny_female: string;
-  };
-}
-
 const Page = () => {
-  const [data, setData] = useState<Data>();
-  const [pokemonDetail, setPokemonDetail] = useState<PokemonDetail>();
+  const [searchForm, setSearchForm] = useState<string>("");
+  const {
+    pokemons,
+    nextPage,
+    prevPage,
+    fetchPokemons,
+    getPokemonDetail,
+    findPokemon,
+    pokemonDetail,
+    pokemonCurrentIndex,
+    isLoading,
+  } = usePokemonStore();
   useEffect(() => {
-    fetch("https://pokeapi.co/api/v2/pokemon")
-      .then((response) => response.json())
-      .then((data) => setData(data));
-  }, []);
-
-  const getPokemonDetail = async (url: string) => {
-    setPokemonDetail(undefined);
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setPokemonDetail(data));
-  };
-
-  const nextPage = () => {
-    fetch(data?.next!)
-      .then((response) => response.json())
-      .then((data) => setData(data));
-  };
-  const prevPage = () => {
-    fetch(data?.previous!)
-      .then((response) => response.json())
-      .then((data) => setData(data));
-  };
+    fetchPokemons();
+  }, [fetchPokemons]);
   return (
     <div>
-      <section className="max-w-3xl w-full mx-auto">
-        <h1 className="text-2xl ">Pokemon</h1>
+      <section className="max-w-3xl w-full mx-auto px-4">
+        <h1 className="text-2xl font-semibold my-8">Pokemon</h1>
         <Drawer>
-          <ul>
-            {data?.results.map((pokemon) => (
-              <li key={pokemon.name}>
-                <DrawerTrigger asChild>
-                  <Button onClick={() => getPokemonDetail(pokemon.url)}>
-                    {pokemon.name}
-                  </Button>
-                </DrawerTrigger>
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-row justify-between items-center my-4">
+            <div className="flex flex-row gap-4">
+              <Input
+                type="text"
+                placeholder="Pencarian..."
+                onChange={(e) => setSearchForm(e.target.value.toLowerCase())}
+              />
+              <DrawerTrigger asChild>
+                <Button
+                  size="icon"
+                  className="p-2"
+                  onClick={() => {
+                    console.log(searchForm);
+                    findPokemon(searchForm);
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    className="bi bi-search h-full w-full"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                  </svg>
+                </Button>
+              </DrawerTrigger>
+            </div>
+            <p className="w-max text-sm">
+              {pokemonCurrentIndex} - {pokemonCurrentIndex + 19} /{" "}
+              {pokemons?.count}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {pokemons
+              ? pokemons?.results.map((pokemon) => (
+                  <DrawerTrigger key={pokemon.name} asChild>
+                    <Button
+                      variant="green"
+                      onClick={() => getPokemonDetail(pokemon.url)}
+                    >
+                      {pokemon.name}
+                    </Button>
+                  </DrawerTrigger>
+                ))
+              : Array.from(Array(20)).map(() => (
+                  <DrawerTrigger key={pokemons} asChild>
+                    <Skeleton className="h-9 w-full" />
+                  </DrawerTrigger>
+                ))}
+          </div>
 
           <DrawerContent>
             <div className="mx-auto w-full max-w-sm">
-              <DrawerHeader>
-                <DrawerTitle>{pokemonDetail?.name}</DrawerTitle>
-                <DrawerDescription>
-                  {/* Set your daily activity goal. */} Base Experience{" : "}
-                  {pokemonDetail?.base_experience}
-                </DrawerDescription>
-              </DrawerHeader>
-              <div className="p-4 pb-0">
-                <div className="flex items-center justify-center space-x-2">
-                  {/* {pokemonDetail?.abilities.map((ability) => (
-                    <div key={ability.ability.name}>{ability.ability.name}</div>
-                  ))} */}
-                  <Image
-                    src={pokemonDetail?.sprites?.back_default!}
-                    alt="pokemon"
-                    width={96}
-                    height={96}
-                  />
-                </div>
-                <div className="mt-3 h-[120px]"></div>
-              </div>
+              {pokemonDetail ? (
+                <PokemonDetail pokemonDetail={pokemonDetail} />
+              ) : isLoading ? (
+                <PokemonDetailSkeleton />
+              ) : (
+                <h1>Data Tidak ada</h1>
+              )}
+
               <DrawerFooter>
                 <DrawerClose asChild>
                   <Button variant="outline">Close</Button>
@@ -134,19 +110,14 @@ const Page = () => {
             </div>
           </DrawerContent>
         </Drawer>
-
-        <Pagination>
-          <PaginationContent className="w-full flex flex-row-reverse justify-between ">
-            <PaginationItem>
-              <PaginationNext onClick={nextPage} href="#" />
-            </PaginationItem>
-            {data?.previous && (
-              <PaginationItem>
-                <PaginationPrevious onClick={prevPage} href={"#"} />
-              </PaginationItem>
-            )}
-          </PaginationContent>
-        </Pagination>
+        <div className="flex flex-row-reverse justify-between my-4">
+          <Button variant="ghost" onClick={nextPage}>
+            Next
+          </Button>
+          <Button variant="ghost" onClick={prevPage}>
+            Prev
+          </Button>
+        </div>
       </section>
     </div>
   );
