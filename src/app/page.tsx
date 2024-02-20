@@ -85,10 +85,8 @@ const Page = () => {
                     </Button>
                   </DrawerTrigger>
                 ))
-              : Array.from(Array(20)).map(() => (
-                  <DrawerTrigger key={pokemons} asChild>
-                    <Skeleton className="h-9 w-full" />
-                  </DrawerTrigger>
+              : Array.from(Array(20)).map((val, index) => (
+                  <Skeleton key={index} className="h-9 w-full" />
                 ))}
           </div>
 
