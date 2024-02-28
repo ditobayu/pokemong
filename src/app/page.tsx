@@ -39,7 +39,7 @@ const Page = () => {
   return (
     <div>
       <section className="max-w-3xl w-full mx-auto px-4">
-        <h1 className="text-2xl font-semibold my-8">Pokemon</h1>
+        <h1 className="text-2xl font-semibold my-8">Pokemon 123</h1>
         <Drawer>
           <div className="flex flex-row justify-between items-center my-4">
             <div className="flex flex-row gap-4">
@@ -109,10 +109,18 @@ const Page = () => {
           </DrawerContent>
         </Drawer>
         <div className="flex flex-row-reverse justify-between my-4">
-          <Button variant="ghost" onClick={nextPage}>
+          <Button
+            disabled={pokemons?.next == undefined}
+            variant="ghost"
+            onClick={nextPage}
+          >
             Next
           </Button>
-          <Button variant="ghost" onClick={prevPage}>
+          <Button
+            disabled={pokemons?.previous == undefined}
+            variant="ghost"
+            onClick={prevPage}
+          >
             Prev
           </Button>
         </div>

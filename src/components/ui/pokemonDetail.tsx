@@ -53,7 +53,7 @@ export const PokemonDetail = ({
         width={400}
         height={400}
       />
-      <div className="text-sm text-slate-600">
+      <div className="text-sm px-4 text-slate-600">
         {/* height  */}
         <label>ID : </label>
         <span>{pokemonDetail?.id}</span>
@@ -91,7 +91,7 @@ export const PokemonDetailSkeleton = () => {
       </DrawerHeader>
 
       <Skeleton className="w-[400px] h-[400px]" />
-      <div className="gap-2 flex flex-col mt-2">
+      <div className="gap-2 px-4 flex flex-col mt-2">
         <Skeleton className="h-4 w-36" />
         <Skeleton className="h-4 w-48" />
         <Skeleton className="h-4 w-52" />
